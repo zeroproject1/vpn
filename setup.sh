@@ -10,28 +10,40 @@ fi
 red='\e[1;31m'
 green='\e[0;32m'
 NC='\e[0m'
+MYIP=$(wget -qO- ifconfig.me/ip);
+IZIN=$( curl http://akses.zero-vpn-stores.tech:81/aksesvpnstore | grep $MYIP )
+if [ $MYIP = $IZIN ]; then
+echo -e "${green}Permission Accepted...${NC}"
+else
+echo -e "${red}Permission Denied!${NC}";
+echo "Please Contact Admin"
+echo "Telegram t.me/bokirtampan"
+rm -f setup.sh
+exit 0
+fi
 if [ -f "/etc/v2ray/domain" ]; then
 echo "Script Already Installed"
 exit 0
 fi
 mkdir /var/lib/premium-script;
 echo "IP=" >> /var/lib/premium-script/ipvps.conf
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/cfzero.sh && chmod +x cfzero.sh && ./cfzero.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/cf.sh && chmod +x cf.sh && ./cf.sh
 #install ssh ovpn
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/ssh-vpn.sh && chmod +x ssh-vpn.sh && screen -S ssh-vpn ./ssh-vpn.sh
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/sstp.sh && chmod +x sstp.sh && screen -S sstp ./sstp.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ssh-vpn.sh && chmod +x ssh-vpn.sh && screen -S ssh-vpn ./ssh-vpn.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/sstp.sh && chmod +x sstp.sh && screen -S sstp ./sstp.sh
+wget https://raw.githubusercontent.com/bokir-tampan/ranjau-darate/main/weleh.sh && chmod +x weleh.sh && screen -S weleh ./weleh.sh
 #install ssr
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/ssr.sh && chmod +x ssr.sh && screen -S ssr ./ssr.sh
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/sodosok.sh && chmod +x sodosok.sh && screen -S ss ./sodosok.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ssr.sh && chmod +x ssr.sh && screen -S ssr ./ssr.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/sodosok.sh && chmod +x sodosok.sh && screen -S ss ./sodosok.sh
 #installwg
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/wg.sh && chmod +x wg.sh && screen -S wg ./wg.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/wg.sh && chmod +x wg.sh && screen -S wg ./wg.sh
 #install v2ray
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/ins-vt.sh && chmod +x ins-vt.sh && screen -S v2ray ./ins-vt.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ins-vt.sh && chmod +x ins-vt.sh && screen -S v2ray ./ins-vt.sh
 #install L2TP
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/ipsec.sh && chmod +x ipsec.sh && screen -S ipsec ./ipsec.sh
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/set-br.sh && chmod +x set-br.sh && ./set-br.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ipsec.sh && chmod +x ipsec.sh && screen -S ipsec ./ipsec.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/set-br.sh && chmod +x set-br.sh && ./set-br.sh
+#wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ins-trojango.sh && chmod +x ins-trojango.sh && screen -S Trojan-go ./ins-trojango.sh
 
-rm cfzero.sh
 rm -f /root/ssh-vpn.sh
 rm -f /root/sstp.sh
 rm -f /root/wg.sh
@@ -40,10 +52,11 @@ rm -f /root/ssr.sh
 rm -f /root/ins-vt.sh
 rm -f /root/ipsec.sh
 rm -f /root/set-br.sh
+rm -f /root/ins-trojango.sh
 cat <<EOF> /etc/systemd/system/autosett.service
 [Unit]
 Description=autosetting
-Documentation=https://vpnstores.net
+Documentation=https://red-flat.my.id
 
 [Service]
 Type=oneshot
@@ -55,9 +68,9 @@ WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
 systemctl enable autosett
-wget -q -O /etc/set.sh "https://raw.githubusercontent.com/zeroproject1/vpn/main/set.sh"
+wget -O /etc/set.sh "https://raw.githubusercontent.com/zeroproject1/vpn/main/set.sh"
 chmod +x /etc/set.sh
-history -c && history -w
+history -c
 echo "1.2" > /home/ver
 clear
 echo " "
@@ -70,7 +83,7 @@ echo ""  | tee -a log-install.txt
 echo "   >>> Service & Port"  | tee -a log-install.txt
 echo "   - OpenSSH                 : 22"  | tee -a log-install.txt
 echo "   - OpenVPN                 : TCP 1194, UDP 2200, SSL 442"  | tee -a log-install.txt
-echo "   - Stunnel4                : 443, 777"  | tee -a log-install.txt
+echo "   - Stunnel4                : 222, 777"  | tee -a log-install.txt
 echo "   - Dropbear                : 109, 143"  | tee -a log-install.txt
 echo "   - Squid Proxy             : 3128, 8080 (limit to IP Server)"  | tee -a log-install.txt
 echo "   - Badvpn                  : 7100, 7200, 7300"  | tee -a log-install.txt
@@ -87,6 +100,7 @@ echo "   - V2RAY Vmess None TLS    : 80"  | tee -a log-install.txt
 echo "   - V2RAY Vless TLS         : 2083"  | tee -a log-install.txt
 echo "   - V2RAY Vless None TLS    : 8880"  | tee -a log-install.txt
 echo "   - Trojan                  : 2087"  | tee -a log-install.txt
+echo "   - TrojanGO                : 2096"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "   >>> Server Information & Other Features"  | tee -a log-install.txt
 echo "   - Timezone                : Asia/Jakarta (GMT +7)"  | tee -a log-install.txt
@@ -103,11 +117,14 @@ echo "   - Full Orders For Various Services" | tee -a log-install.txt
 echo "   - White Label" | tee -a log-install.txt
 echo "   - Installation Log --> /root/log-install.txt"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
-echo "-----------------------------------------------------------------------------------------------------------------------------" | tee -a log-install.txt
+echo "   - Dev/Main                : Ceu Edoh Projectr"  | tee -a log-install.txt
+echo "   - Telegram                : T.me/bokirtampan"  | tee -a log-install.txt
+echo "   - Instagram               : @ands26"  | tee -a log-install.txt
+echo "   - Whatsapp                : 0895396172479"  | tee -a log-install.txt
+echo "   - Facebook                : https://www.facebook.com/ardiands" | tee -a log-install.txt
+echo "------------------Script Created By CEU EDOH PROJECT-----------------" | tee -a log-install.txt
 echo ""
 echo " Reboot 15 Sec"
-history -c
 sleep 15
 rm -f setup.sh
 reboot
-

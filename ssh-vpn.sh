@@ -1,4 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
+#
+# ==================================================
 
 # initializing var
 export DEBIAN_FRONTEND=noninteractive
@@ -14,15 +16,42 @@ state=Indonesia
 locality=Indonesia
 organization=zero-vpn-stores.tech
 organizationalunit=zero-vpn-stores.tech
-commonname=zeroVPN&JavSEXY
+commonname=zero-vpn-stores.tech
 email=admin@zero-vpn-stores.tech
 
 # simple password minimal
-wget -q -O /etc/pam.d/common-password "https://raw.githubusercontent.com/zeroproject1/vpn/main/password"
+wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/zeroproject1/vpn/main/password"
 chmod +x /etc/pam.d/common-password
 
 # go to root
 cd
+# Edu OVPN
+wget -q -O /usr/local/bin/edu-ovpn https://raw.githubusercontent.com/zeroproject1/vpn/main/cdn-ovpn.py
+chmod +x /usr/local/bin/edu-ovpn
+
+# Installing Service
+cat > /etc/systemd/system/edu-ovpn.service << END
+[Unit]
+Description=Python Edu Ovpn By ZeroVpn
+Documentation=https://zero-vpn-stores.tech
+After=network.target nss-lookup.target
+
+[Service]
+Type=simple
+User=root
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/bin/python -O /usr/local/bin/edu-ovpn 2082
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+END
+
+systemctl daemon-reload
+systemctl enable edu-ovpn
+systemctl restart edu-ovpn
 
 # Edit file /etc/systemd/system/rc-local.service
 cat > /etc/systemd/system/rc-local.service <<-END
@@ -68,6 +97,7 @@ apt-get remove --purge exim4 -y
 
 # install wget and curl
 apt -y install wget curl
+apt -y install python
 
 # set time GMT +7
 ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
@@ -79,20 +109,22 @@ sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
 apt-get --reinstall --fix-missing install -y bzip2 gzip coreutils wget screen rsyslog iftop htop net-tools zip unzip wget net-tools curl nano sed screen gnupg gnupg1 bc apt-transport-https build-essential dirmngr libxml-parser-perl neofetch git lsof
 echo "clear" >> .profile
 echo "neofetch" >> .profile
+echo "echo by ZeroVpn" >> .profile
+echo "echo Ketik menu Untuk Melihat Options" >> .profile
 
 # install webserver
 apt -y install nginx
 cd
 rm /etc/nginx/sites-enabled/default
 rm /etc/nginx/sites-available/default
-wget -q -O /etc/nginx/nginx.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/nginx.conf"
+wget -O /etc/nginx/nginx.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/nginx.conf"
 mkdir -p /home/vps/public_html
-wget -q -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/vps.conf"
+wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/vps.conf"
 /etc/init.d/nginx restart
 
 # install badvpn
 cd
-wget -q -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/zeroproject1/vpn/main/badvpn-udpgw64"
+wget -O /usr/bin/badvpn-udpgw "https://raw.githubusercontent.com/zeroproject1/vpn/main/badvpn-udpgw64"
 chmod +x /usr/bin/badvpn-udpgw
 sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7100 --max-clients 500' /etc/rc.local
 sed -i '$ i\screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7200 --max-clients 500' /etc/rc.local
@@ -114,7 +146,7 @@ sed -i 's/Port 22/Port 22/g' /etc/ssh/sshd_config
 apt -y install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=143/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109"/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 69 -p 77"/g' /etc/default/dropbear
 echo "/bin/false" >> /etc/shells
 echo "/usr/sbin/nologin" >> /etc/shells
 /etc/init.d/dropbear restart
@@ -122,7 +154,7 @@ echo "/usr/sbin/nologin" >> /etc/shells
 # install squid
 cd
 apt -y install squid3
-wget -q -O /etc/squid/squid.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/squid3.conf"
+wget -O /etc/squid/squid.conf "https://raw.githubusercontent.com/zeroproject1/vpn/main/squid3.conf"
 sed -i $MYIP2 /etc/squid/squid.conf
 
 # setting vnstat
@@ -151,9 +183,13 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 
-[dropbear]
+[edussl]
 accept = 443
-connect = 127.0.0.1:109
+connect = 700
+
+[dropbear]
+accept = 222
+connect = 127.0.0.1:22
 
 [dropbear]
 accept = 777
@@ -162,6 +198,8 @@ connect = 127.0.0.1:22
 [openvpn]
 accept = 442
 connect = 127.0.0.1:1194
+
+
 
 END
 
@@ -175,41 +213,17 @@ cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 /etc/init.d/stunnel4 restart
 
-#sshws
-apt -y install python
-apt -y install tmux
-apt -y install ruby
-gem install lolcat
-apt -y install figlet
-wget -q -O /usr/local/bin/edu-proxy https://raw.githubusercontent.com/zeroproject1/vpn/main/pdirect.py
-chmod +x /usr/local/bin/edu-proxy
+#install badvpncdn
+wget https://github.com/ambrop72/badvpn/archive/master.zip
+unzip master.zip
+cd badvpn-master
+mkdir build
+cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+sudo make install
 
-# Installing Service
-cat > /etc/systemd/system/edu-proxy.service << END
-[Unit]
-Description=Autoscript by JavSEXY
-Documentation=https://xnxx.com
-After=network.target nss-lookup.target
-
-[Service]
-Type=simple
-User=root
-CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
-AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
-NoNewPrivileges=true
-ExecStart=/usr/bin/python -O /usr/local/bin/edu-proxy 2082
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
 END
-
-systemctl daemon-reload
-systemctl enable edu-proxy
-systemctl restart edu-proxy
-
 #OpenVPN
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/vpn.sh &&  chmod +x vpn.sh && ./vpn.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/vpn.sh &&  chmod +x vpn.sh && ./vpn.sh
 
 # install fail2ban
 apt -y install fail2ban
@@ -242,6 +256,7 @@ echo 'Config file is at /usr/local/ddos/ddos.conf'
 echo 'Please send in your comments and/or suggestions to zaf@vsnl.com'
 
 # banner /etc/issue.net
+wget -O /etc/issue.net "https://raw.githubusercontent.com/zeroproject1/vpn/main/banner.conf"
 echo "Banner /etc/issue.net" >>/etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 
@@ -262,38 +277,64 @@ iptables-restore -t < /etc/iptables.up.rules
 netfilter-persistent save
 netfilter-persistent reload
 
+# install python
+apt -y install ruby
+gem install lolcat
+apt -y install figlet
+apt -y install dos2unix
+
 # download script
 cd /usr/bin
-wget -q -O add-host "https://raw.githubusercontent.com/zeroproject1/vpn/main/add-host.sh"
-wget -q -O about "https://raw.githubusercontent.com/zeroproject1/vpn/main/about.sh"
-wget -q -O usernew "https://raw.githubusercontent.com/zeroproject1/vpn/main/usernew.sh"
-wget -q -O trial "https://raw.githubusercontent.com/zeroproject1/vpn/main/trial.sh"
-wget -q -O hapus "https://raw.githubusercontent.com/zeroproject1/vpn/main/hapus.sh"
-wget -q -O member "https://raw.githubusercontent.com/zeroproject1/vpn/main/member.sh"
-wget -q -O delete "https://raw.githubusercontent.com/zeroproject1/vpn/main/delete.sh"
-wget -q -O cek "https://raw.githubusercontent.com/zeroproject1/vpn/main/cek.sh"
-wget -q -O restart "https://raw.githubusercontent.com/zeroproject1/vpn/main/restart.sh"
-wget -q -O speedtest "https://raw.githubusercontent.com/zeroproject1/vpn/main/speedtest_cli.py"
-wget -q -O info "https://raw.githubusercontent.com/zeroproject1/vpn/main/info.sh"
-wget -q -O ram "https://raw.githubusercontent.com/zeroproject1/vpn/main/ram.sh"
-wget -q -O renew "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew.sh"
-wget -q -O autokill "https://raw.githubusercontent.com/zeroproject1/vpn/main/autokill.sh"
-wget -q -O ceklim "https://raw.githubusercontent.com/zeroproject1/vpn/main/ceklim.sh"
-wget -q -O tendang "https://raw.githubusercontent.com/zeroproject1/vpn/main/tendang.sh"
-wget -q -O clear-log "https://raw.githubusercontent.com/zeroproject1/vpn/main/clear-log.sh"
-wget -q -O change-port "https://raw.githubusercontent.com/zeroproject1/vpn/main/change.sh"
-wget -q -O port-ovpn "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ovpn.sh"
-wget -q -O port-ssl "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ssl.sh"
-wget -q -O port-wg "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-wg.sh"
-wget -q -O port-tr "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-tr.sh"
-wget -q -O port-sstp "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-sstp.sh"
-wget -q -O port-squid "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-squid.sh"
-wget -q -O port-ws "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ws.sh"
-wget -q -O port-vless "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-vless.sh"
-wget -q -O wbmn "https://raw.githubusercontent.com/zeroproject1/vpn/main/webmin.sh"
-wget -q -O xp "https://raw.githubusercontent.com/zeroproject1/vpn/main/xp.sh"
-wget -q -O kernel-updt "https://raw.githubusercontent.com/zeroproject1/vpn/main/kernel-update.sh"
-wget -q -O update "https://raw.githubusercontent.com/zeroproject1/vpn/main/update.sh"
+wget -O add-host "https://raw.githubusercontent.com/zeroproject1/vpn/main/add-host.sh"
+wget -O about "https://raw.githubusercontent.com/zeroproject1/vpn/main/about.sh"
+wget -O usernew "https://raw.githubusercontent.com/zeroproject1/vpn/main/usernew.sh"
+wget -O trial "https://raw.githubusercontent.com/zeroproject1/vpn/main/trial.sh"
+wget -O hapus "https://raw.githubusercontent.com/zeroproject1/vpn/main/hapus.sh"
+wget -O member "https://raw.githubusercontent.com/zeroproject1/vpn/main/member.sh"
+wget -O delete "https://raw.githubusercontent.com/zeroproject1/vpn/main/delete.sh"
+wget -O cek "https://raw.githubusercontent.com/zeroproject1/vpn/main/cek.sh"
+wget -O restart "https://raw.githubusercontent.com/zeroproject1/vpn/main/restart.sh"
+wget -O speedtest "https://raw.githubusercontent.com/zeroproject1/vpn/main/speedtest_cli.py"
+wget -O info "https://raw.githubusercontent.com/zeroproject1/vpn/main/info.sh"
+wget -O ram "https://raw.githubusercontent.com/zeroproject1/vpn/main/ram.sh"
+wget -O renew "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew.sh"
+wget -O autokill "https://raw.githubusercontent.com/zeroproject1/vpn/main/autokill.sh"
+wget -O ceklim "https://raw.githubusercontent.com/zeroproject1/vpn/main/ceklim.sh"
+wget -O tendang "https://raw.githubusercontent.com/zeroproject1/vpn/main/tendang.sh"
+wget -O clear-log "https://raw.githubusercontent.com/zeroproject1/vpn/main/clear-log.sh"
+wget -O change-port "https://raw.githubusercontent.com/zeroproject1/vpn/main/change.sh"
+wget -O port-ovpn "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ovpn.sh"
+wget -O port-ssl "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ssl.sh"
+wget -O port-wg "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-wg.sh"
+wget -O port-tr "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-tr.sh"
+wget -O port-sstp "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-sstp.sh"
+wget -O port-squid "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-squid.sh"
+wget -O port-ws "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-ws.sh"
+wget -O port-vless "https://raw.githubusercontent.com/zeroproject1/vpn/main/port-vless.sh"
+wget -O wbmn "https://raw.githubusercontent.com/zeroproject1/vpn/main/webmin.sh"
+wget -O xp "https://raw.githubusercontent.com/zeroproject1/vpn/main/xp.sh"
+wget -O swap "https://raw.githubusercontent.com/zeroproject1/vpn/main/swapkvm.sh"
+wget -O menu "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/menu.sh"
+wget -O l2tp "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/l2tp.sh"
+wget -O ssh "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/ssh.sh"
+wget -O ssssr "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/ssssr.sh"
+wget -O sstpp "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/sstpp.sh"
+wget -O trojaan "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/trojaan.sh"
+wget -O v2raay "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/v2raay.sh"
+wget -O wgr "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/wgr.sh"
+wget -O vleess "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/vleess.sh"
+wget -O bbr "https://raw.githubusercontent.com/zeroproject1/vpn/main/update/bbr.sh"
+wget -O bannerku "https://raw.githubusercontent.com/zeroproject1/vpn/main/bannerku"
+wget -O /usr/bin/user-limit https://raw.githubusercontent.com/zeroproject1/vpn/main/user-limit.sh && chmod +x /usr/bin/user-limit
+wget -O cfd "https://raw.githubusercontent.com/zeroproject1/vpn/main/cfd.sh"
+wget -O cff "https://raw.githubusercontent.com/zeroproject1/vpn/main/cff.sh"
+wget -O cfh "https://raw.githubusercontent.com/zeroproject1/vpn/main/cfh.sh"
+wget -O autoreboot "https://raw.githubusercontent.com/zeroproject1/vpn/main/autoreboot.sh"
+wget -O add-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/add-trgo"
+wget -O del-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/del-trgo"
+wget -O cek-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/cek-trgo"
+wget -O renew-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-trgo"
+wget -O trojangoo "https://raw.githubusercontent.com/bokir-tampan/ranjau-darate/main/trojangoo.sh"
 chmod +x add-host
 chmod +x usernew
 chmod +x trial
@@ -304,31 +345,51 @@ chmod +x cek
 chmod +x restart
 chmod +x speedtest
 chmod +x info
-chmod +x about
-chmod +x autokill
-chmod +x tendang
-chmod +x ceklim
 chmod +x ram
 chmod +x renew
+chmod +x about
+chmod +x autokill
+chmod +x ceklim
+chmod +x tendang
 chmod +x clear-log
 chmod +x change-port
 chmod +x port-ovpn
 chmod +x port-ssl
 chmod +x port-wg
-chmod +x port-sstp
 chmod +x port-tr
+chmod +x port-sstp
 chmod +x port-squid
 chmod +x port-ws
 chmod +x port-vless
 chmod +x wbmn
 chmod +x xp
-chmod +x kernel-updt
-chmod +x update
-echo "0 5 * * * root clear-log && reboot" >> /etc/crontab
+chmod +x swap
+chmod +x menu
+chmod +x l2tp
+chmod +x ssh
+chmod +x ssssr
+chmod +x sstpp
+chmod +x trojaan
+chmod +x v2raay
+chmod +x wgr
+chmod +x vleess
+chmod +x bbr
+chmod +x bannerku
+chmod +x cfd
+chmod +x cff
+chmod +x cfh
+chmod +x autoreboot
+chmod +x add-trgo
+chmod +x del-trgo
+chmod +x cek-trgo
+chmod +x renew-trgo
+dos2unix add-trgo
+dos2unix del-trgo
+dos2unix cek-trgo
+dos2unix renew-trgo
+chmod +x trojangoo
+echo "0 5 * * * root clear-log" >> /etc/crontab
 echo "0 0 * * * root xp" >> /etc/crontab
-#installl
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/bbr.sh && chmod +x bbr.sh && ./bbr.sh
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/install.sh && chmod +x install.sh && sed -i -e 's/\r$//' install.sh && ./install.sh
 # remove unnecessary files
 cd
 apt autoclean -y
@@ -366,6 +427,12 @@ cd
 rm -f /root/key.pem
 rm -f /root/cert.pem
 rm -f /root/ssh-vpn.sh
+
+apt install dnsutils jq -y
+apt-get install net-tools -y
+apt-get install tcpdump -y
+apt-get install dsniff -y
+apt install grepcidr -y
 
 # finihsing
 clear
