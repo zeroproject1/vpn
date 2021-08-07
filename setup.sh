@@ -31,7 +31,7 @@ wget https://raw.githubusercontent.com/zeroproject1/vpn/main/cf.sh && chmod +x c
 #install ssh ovpn
 wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ssh-vpn.sh && chmod +x ssh-vpn.sh && screen -S ssh-vpn ./ssh-vpn.sh
 wget https://raw.githubusercontent.com/zeroproject1/vpn/main/sstp.sh && chmod +x sstp.sh && screen -S sstp ./sstp.sh
-wget https://raw.githubusercontent.com/bokir-tampan/ranjau-darate/main/weleh.sh && chmod +x weleh.sh && screen -S weleh ./weleh.sh
+wget https://raw.githubusercontent.com/zeroproject1/vpn/main/weleh.sh && chmod +x weleh.sh && screen -S weleh ./weleh.sh
 #install ssr
 wget https://raw.githubusercontent.com/zeroproject1/vpn/main/ssr.sh && chmod +x ssr.sh && screen -S ssr ./ssr.sh
 wget https://raw.githubusercontent.com/zeroproject1/vpn/main/sodosok.sh && chmod +x sodosok.sh && screen -S ss ./sodosok.sh
