@@ -504,11 +504,11 @@ wget -O renew-ws "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-
 wget -O renew-vless "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-vless.sh"
 wget -O renew-tr "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-tr.sh"
 wget -O certv2ray "https://raw.githubusercontent.com/zeroproject1/vpn/main/cert.sh"
-wget -q -O add-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/add-trgo"
-wget -q -O del-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/del-trgo"
-wget -q -O cek-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/cek-trgo"
-wget -q -O renew-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-trgo"
-wget -q -O trojangoo "https://raw.githubusercontent.com/zeroproject1/vpn/main/trojangoo.sh"
+wget -O add-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/add-trgo"
+wget -O del-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/del-trgo"
+wget -O cek-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/cek-trgo"
+wget -O renew-trgo "https://raw.githubusercontent.com/zeroproject1/vpn/main/renew-trgo"
+wget -O trojangoo "https://raw.githubusercontent.com/zeroproject1/vpn/main/trojangoo.sh"
 chmod +x add-ws
 chmod +x add-vless
 chmod +x add-tr
