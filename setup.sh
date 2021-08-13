@@ -16,7 +16,7 @@ exit 0
 fi
 mkdir /var/lib/premium-script;
 echo "IP=" >> /var/lib/premium-script/ipvps.conf
-wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/cfraisa.sh && chmod +x cfraisa.sh && ./cfraisa.sh
+wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/cfzero.sh && chmod +x cfzero.sh && ./cfzero.sh
 #install ssh ovpn
 wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/ssh-vpn.sh && chmod +x ssh-vpn.sh && screen -S ssh-vpn ./ssh-vpn.sh
 wget -q https://raw.githubusercontent.com/zeroproject1/vpn/main/sstp.sh && chmod +x sstp.sh && screen -S sstp ./sstp.sh
